@@ -29,7 +29,7 @@ def is_background(rgb):
     return lo >= 175 and hi - lo <= 42 and b >= r - 4
 
 
-def remove_background(cell):
+def remove_background(cell, is_bg=is_background):
     rgb = cell.convert("RGB")
     w, h = rgb.size
     px = rgb.load()
@@ -42,7 +42,7 @@ def remove_background(cell):
         queue.extend([(0, y), (w - 1, y)])
     while queue:
         x, y = queue.popleft()
-        if m[x, y] == 0 or not is_background(px[x, y]):
+        if m[x, y] == 0 or not is_bg(px[x, y]):
             continue
         m[x, y] = 0
         if x > 0: queue.append((x - 1, y))

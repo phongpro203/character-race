@@ -96,6 +96,7 @@ export function useRaceEngine({ onBoost, onFinish } = {}) {
       // UI helpers
       speedRatio: 0,
       lean: 0,
+      stride: 0, // run-cycle frame counter, advances faster at higher speed
       // internal motion state
       cruise: 1,
       slump: 0,
@@ -185,6 +186,7 @@ export function useRaceEngine({ onBoost, onFinish } = {}) {
       if (r !== winner) r.position = Math.min(r.position, FINISH_GUARD)
 
       r.speedRatio = r.velocity / s0
+      r.stride += dt * clamp(8 + 6 * r.speedRatio, 8, 22)
       r.lean = clamp(((r.velocity - prev) / dt / s0) * 0.9, -1, 1)
     }
 

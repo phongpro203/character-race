@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import { getCharacter } from '../characters'
+import { getCharacter, RUN_FRAMES } from '../characters'
 
 const props = defineProps({
   racer: { type: Object, required: true },
@@ -15,17 +15,18 @@ const boosting = computed(() => props.running && props.racer.boost > 0)
 const fast = computed(() => props.running && props.racer.speedRatio > 1.15)
 const percent = computed(() => Math.min(100, Math.floor(props.racer.position * 100)))
 
-// bob faster the faster the racer runs
-const stepSeconds = computed(() => {
-  const s = props.racer.speedRatio || 0
-  return Math.max(0.16, 0.5 - s * 0.14).toFixed(2) + 's'
-})
+// run-cycle frame, driven by the engine's stride counter (faster racer = faster legs)
+const frame = computed(() => Math.floor(props.racer.stride) % RUN_FRAMES)
 
 const bodyStyle = computed(() => {
   const r = props.racer
-  const tilt = 4 + r.lean * 10 + (boosting.value ? 6 : 0)
+  const tilt = r.lean * 6 + (boosting.value ? 4 : 0)
   const scale = boosting.value ? 1.12 : 1
-  return { transform: `rotate(${tilt.toFixed(1)}deg) scale(${scale})` }
+  return {
+    transform: `rotate(${tilt.toFixed(1)}deg) scale(${scale})`,
+    backgroundImage: `url(${character.value.run})`,
+    backgroundPositionX: `${(frame.value / (RUN_FRAMES - 1)) * 100}%`,
+  }
 })
 </script>
 
@@ -51,8 +52,8 @@ const bodyStyle = computed(() => {
           <div v-if="fast" class="runner__dust">
             <i /><i /><i />
           </div>
-          <div class="runner__bob" :class="{ 'runner__bob--on': running, 'runner__bob--shake': boosting }" :style="{ '--step': stepSeconds }">
-            <img class="runner__img" :src="character.img" :alt="character.name" :style="bodyStyle" draggable="false" />
+          <div class="runner__bob" :class="{ 'runner__bob--shake': boosting }">
+            <div class="runner__img" role="img" :aria-label="character.name" :style="bodyStyle" />
           </div>
           <div class="runner__shadow" />
         </div>
@@ -118,16 +119,12 @@ const bodyStyle = computed(() => {
 @media (max-width: 560px) { .runner__tag { display: none; } }
 
 .runner__bob { position: relative; width: 100%; height: 100%; z-index: 2; }
-.runner__bob--on { animation: bob var(--step) ease-in-out infinite; }
 .runner__bob--shake .runner__img { animation: shake 0.08s linear infinite; }
 .runner__img {
-  width: 100%; height: 100%; object-fit: contain; transform-origin: 50% 90%;
+  width: 100%; height: 100%; transform-origin: 50% 90%;
+  background-repeat: no-repeat; background-size: 800% 100%;
   transition: transform 0.15s ease-out; filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.35));
   user-select: none;
-}
-@keyframes bob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-14%); }
 }
 @keyframes shake {
   0% { translate: 0 0; } 25% { translate: 1px -1px; } 50% { translate: -1px 1px; } 75% { translate: 1px 1px; }
