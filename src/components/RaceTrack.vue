@@ -3,7 +3,6 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRaceEngine } from '../composables/useRaceEngine'
 import { useSound } from '../composables/useSound'
 import RacerLane from './RacerLane.vue'
-import LiveRanking from './LiveRanking.vue'
 import Countdown from './Countdown.vue'
 import WinnerModal from './WinnerModal.vue'
 
@@ -97,7 +96,6 @@ onBeforeUnmount(() => {
           :running="running"
         />
       </div>
-      <LiveRanking class="race__ranking" :ranking="ranking" />
     </div>
 
     <div class="race__actions">
@@ -130,12 +128,6 @@ onBeforeUnmount(() => {
 @keyframes beat { 50% { transform: scale(1.18); } }
 @keyframes tremble { 50% { transform: translateY(1px); } }
 
-.race__body { display: grid; grid-template-columns: 1fr 200px; gap: 12px; align-items: start; }
-@media (max-width: 900px) {
-  .race__body { grid-template-columns: 1fr; }
-  .race__ranking :deep(.ranking__list) { flex-direction: row; flex-wrap: wrap; }
-  .race__ranking :deep(.ranking__item) { flex: 1 1 130px; }
-}
 
 .track { overflow: hidden; padding: 0; background: #5aa832; }
 .track__labels {
